@@ -1,0 +1,40 @@
+apiVersion: templates.krateo.io/v1
+kind: RESTAction
+metadata:
+  name: compositions-list
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "krateo.io/verbose": "true"
+spec:
+  api:
+  - name: allNamespacesAndCrds
+    path: "/call?apiVersion=templates.krateo.io%2Fv1&resource=restactions&name=compositions-get-ns-and-crd&namespace={{ .Release.Namespace }}"
+    verb: GET
+    endpointRef:
+      name: snowplow-endpoint
+      namespace: {{ .Release.Namespace }}
+    headers:
+    - 'Accept: application/json'
+    continueOnError: true
+    errorKey: allNamespacesAndCrdsError
+    exportJwt: true
+  - name: allCompositions
+    dependsOn: 
+      name: allNamespacesAndCrds
+      iterator: ".allNamespacesAndCrds.status"
+    path: ${ "/apis/composition.krateo.io/" + (.version) + "/namespaces/" + (.namespace) + "/" + (.plural) }
+    verb: GET 
+    continueOnError: true
+    errorKey: allCompositionsError
+  filter: >
+    {
+      list: (
+        if (.allCompositions | type) == "array" then
+          [.allCompositions[]?.items[]?]
+        elif (.allCompositions | type) == "object" then
+          [.allCompositions.items[]?]
+        else
+          []
+        end
+      )
+    }
