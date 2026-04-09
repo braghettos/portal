@@ -20,7 +20,7 @@ spec:
             {
               color: "green",
               value: ( .list
-                | map(select((.status.conditions // [])
+                | map(select((.conditions // [])
                   | map(select(.type == "Ready" and .status == "True"))
                   | length > 0))
                 | length),
@@ -29,7 +29,7 @@ spec:
             {
               color: "orange",
               value: ( .list
-                | map(select((.status.conditions // [])
+                | map(select((.conditions // [])
                   | map(select(.type == "Ready" and .status == "False"))
                   | length > 0))
                 | length),
@@ -38,7 +38,7 @@ spec:
             {
               color: "gray",
               value: ( .list
-                | map(select((.status.conditions // [])
+                | map(select((.conditions // [])
                   | map(select(.type == "Ready" and (.status == "True" or .status == "False")))
                   | length == 0))
                 | length),

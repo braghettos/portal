@@ -34,33 +34,33 @@ spec:
                   valueKey: "key",
                   kind: "jsonSchemaType",
                   type: "string",
-                  stringValue: .metadata.uid
+                  stringValue: .uid
                 },
                 {
                   valueKey: "name",
                   kind: "jsonSchemaType",
                   type: "string",
-                  stringValue: .metadata.name
+                  stringValue: .name
                 },
                 {
                   valueKey: "namespace",
                   kind: "jsonSchemaType",
                   type: "string",
-                  stringValue: .metadata.namespace
+                  stringValue: .ns
                 },
                 {
                   valueKey: "date",
                   kind: "jsonSchemaType",
                   type: "string",
-                  stringValue: .metadata.creationTimestamp
+                  stringValue: .ts
                 },
                 {
                   valueKey: "status",
                   kind: "jsonSchemaType",
                   type: "string",
                   stringValue: (
-                    if (.status? and .status.conditions?) then
-                      (.status.conditions[]? | select(.type == "Ready") | "Ready: " + .status)?
+                    if (.conditions | length > 0) then
+                      (.conditions[]? | select(.type == "Ready") | "Ready: " + .status)?
                       // "Status not available"
                     else
                       "Status not available"
@@ -77,10 +77,9 @@ spec:
                   valueKey: "apiversion",
                   kind: "jsonSchemaType",
                   type: "string",
-                  stringValue: .apiVersion
+                  stringValue: .av
                 }
               ])
-            # Each row is now an array of cells → sort by the "date" cell's stringValue
             | sort_by( ([.[] | select(.valueKey == "date") | .stringValue] | first) )
             | reverse
           )
