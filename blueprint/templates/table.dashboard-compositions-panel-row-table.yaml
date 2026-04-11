@@ -28,7 +28,7 @@ spec:
       expression: >
         ${
           (
-            .list
+            (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
             | map([
                 {
                   valueKey: "key",

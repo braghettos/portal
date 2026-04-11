@@ -9,47 +9,59 @@ spec:
   widgetData:
     description: Compositions
     series:
-      data: []
+      data:
+        - color: "green"
+          value: 0
+          label: "Ready:True"
+        - color: "orange"
+          value: 0
+          label: "Ready:False"
+        - color: "gray"
+          value: 0
+          label: "Unknown"
       total: 0
     title: "0"
   widgetDataTemplate:
-    - forPath: series.data
+    - forPath: series.data[0].value
       expression: >
         ${
-          [
-            {
-              color: "green",
-              value: ( .list
-                | map(select((.conditions // [])
-                  | map(select(.type == "Ready" and .status == "True"))
-                  | length > 0))
-                | length),
-              label: "Ready:True"
-            },
-            {
-              color: "orange",
-              value: ( .list
-                | map(select((.conditions // [])
-                  | map(select(.type == "Ready" and .status == "False"))
-                  | length > 0))
-                | length),
-              label: "Ready:False"
-            },
-            {
-              color: "gray",
-              value: ( .list
-                | map(select((.conditions // [])
-                  | map(select(.type == "Ready" and (.status == "True" or .status == "False")))
-                  | length == 0))
-                | length),
-              label: "Unknown"
-            }
-          ]
+          (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
+          | map(select((.conditions // [])
+              | map(select(.type == "Ready" and .status == "True"))
+              | length > 0))
+          | length
+        }
+    - forPath: series.data[1].value
+      expression: >
+        ${
+          (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
+          | map(select((.conditions // [])
+              | map(select(.type == "Ready" and .status == "False"))
+              | length > 0))
+          | length
+        }
+    - forPath: series.data[2].value
+      expression: >
+        ${
+          (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
+          | map(select((.conditions // [])
+              | map(select(.type == "Ready" and (.status == "True" or .status == "False")))
+              | length == 0))
+          | length
         }
     - forPath: series.total
-      expression: ${ .list | length }
+      expression: >
+        ${
+          (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
+          | length
+        }
     - forPath: title
-      expression: ${ .list | length | tostring }
+      expression: >
+        ${
+          (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
+          | length
+          | tostring
+        }
   apiRef:
     name: compositions-list
     namespace: {{ .Release.Namespace }}
