@@ -25,42 +25,62 @@ spec:
     - forPath: series.data[0].value
       expression: >
         ${
-          (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
-          | map(select((.conditions // [])
-              | map(select(.type == "Ready" and .status == "True"))
-              | length > 0))
-          | length
+          if .aggregate.countBy then
+            .aggregate.countBy.ready_true
+          else
+            (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
+            | map(select((.conditions // [])
+                | map(select(.type == "Ready" and .status == "True"))
+                | length > 0))
+            | length
+          end
         }
     - forPath: series.data[1].value
       expression: >
         ${
-          (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
-          | map(select((.conditions // [])
-              | map(select(.type == "Ready" and .status == "False"))
-              | length > 0))
-          | length
+          if .aggregate.countBy then
+            .aggregate.countBy.ready_false
+          else
+            (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
+            | map(select((.conditions // [])
+                | map(select(.type == "Ready" and .status == "False"))
+                | length > 0))
+            | length
+          end
         }
     - forPath: series.data[2].value
       expression: >
         ${
-          (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
-          | map(select((.conditions // [])
-              | map(select(.type == "Ready" and (.status == "True" or .status == "False")))
-              | length == 0))
-          | length
+          if .aggregate.countBy then
+            .aggregate.countBy.unknown
+          else
+            (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
+            | map(select((.conditions // [])
+                | map(select(.type == "Ready" and (.status == "True" or .status == "False")))
+                | length == 0))
+            | length
+          end
         }
     - forPath: series.total
       expression: >
         ${
-          (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
-          | length
+          if .aggregate.countBy then
+            .aggregate.countBy.total
+          else
+            (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
+            | length
+          end
         }
     - forPath: title
       expression: >
         ${
-          (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
-          | length
-          | tostring
+          if .aggregate.countBy then
+            .aggregate.countBy.total | tostring
+          else
+            (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
+            | length
+            | tostring
+          end
         }
   apiRef:
     name: compositions-list

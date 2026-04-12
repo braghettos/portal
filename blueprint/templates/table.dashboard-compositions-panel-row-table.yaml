@@ -27,62 +27,119 @@ spec:
     - forPath: data
       expression: >
         ${
-          (
-            (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
-            | map([
-                {
-                  valueKey: "key",
-                  kind: "jsonSchemaType",
-                  type: "string",
-                  stringValue: .uid
-                },
-                {
-                  valueKey: "name",
-                  kind: "jsonSchemaType",
-                  type: "string",
-                  stringValue: .name
-                },
-                {
-                  valueKey: "namespace",
-                  kind: "jsonSchemaType",
-                  type: "string",
-                  stringValue: .ns
-                },
-                {
-                  valueKey: "date",
-                  kind: "jsonSchemaType",
-                  type: "string",
-                  stringValue: .ts
-                },
-                {
-                  valueKey: "status",
-                  kind: "jsonSchemaType",
-                  type: "string",
-                  stringValue: (
-                    if (.conditions | length > 0) then
-                      (.conditions[]? | select(.type == "Ready") | "Ready: " + .status)?
-                      // "Status not available"
-                    else
-                      "Status not available"
-                    end
-                  )
-                },
-                {
-                  valueKey: "kind",
-                  kind: "jsonSchemaType",
-                  type: "string",
-                  stringValue: .kind
-                },
-                {
-                  valueKey: "apiversion",
-                  kind: "jsonSchemaType",
-                  type: "string",
-                  stringValue: .av
-                }
-              ])
-            | sort_by( ([.[] | select(.valueKey == "date") | .stringValue] | first) )
-            | reverse
-          )
+          if .aggregate.topN then
+            (
+              .aggregate.topN.items
+              | map([
+                  {
+                    valueKey: "key",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .uid
+                  },
+                  {
+                    valueKey: "name",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .name
+                  },
+                  {
+                    valueKey: "namespace",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .ns
+                  },
+                  {
+                    valueKey: "date",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .ts
+                  },
+                  {
+                    valueKey: "status",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: (
+                      if (.conditions | length > 0) then
+                        (.conditions[]? | select(.type == "Ready") | "Ready: " + .status)?
+                        // "Status not available"
+                      else
+                        "Status not available"
+                      end
+                    )
+                  },
+                  {
+                    valueKey: "kind",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .kind
+                  },
+                  {
+                    valueKey: "apiversion",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .av
+                  }
+                ])
+            )
+          else
+            (
+              (if .slice then .list[0 : (.slice.page * .slice.perPage)] else .list end)
+              | map([
+                  {
+                    valueKey: "key",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .uid
+                  },
+                  {
+                    valueKey: "name",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .name
+                  },
+                  {
+                    valueKey: "namespace",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .ns
+                  },
+                  {
+                    valueKey: "date",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .ts
+                  },
+                  {
+                    valueKey: "status",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: (
+                      if (.conditions | length > 0) then
+                        (.conditions[]? | select(.type == "Ready") | "Ready: " + .status)?
+                        // "Status not available"
+                      else
+                        "Status not available"
+                      end
+                    )
+                  },
+                  {
+                    valueKey: "kind",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .kind
+                  },
+                  {
+                    valueKey: "apiversion",
+                    kind: "jsonSchemaType",
+                    type: "string",
+                    stringValue: .av
+                  }
+                ])
+              | sort_by( ([.[] | select(.valueKey == "date") | .stringValue] | first) )
+              | reverse
+            )
+          end
         }
   apiRef:
     name: compositions-list
