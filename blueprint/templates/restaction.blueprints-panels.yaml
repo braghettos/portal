@@ -23,13 +23,7 @@ spec:
   filter: >
     {
       blueprintspanels: (
-        (if (.blueprintspanels | type) == "array" then
-          [.blueprintspanels[][]?]
-        elif (.blueprintspanels | type) == "object" then
-          [.blueprintspanels[]?]
-        else
-          []
-        end) as $items
+        (.blueprintspanels // []) as $items
         | ($items | sort_by(.metadata.creationTimestamp // "") | reverse) as $sorted
         | (.slice.offset  // 0)                 as $offset
         | (.slice.perPage // ($sorted | length)) as $perPage

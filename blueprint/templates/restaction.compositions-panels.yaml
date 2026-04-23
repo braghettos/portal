@@ -23,13 +23,7 @@ spec:
   filter: >
     {
       compositionspanels: (
-        (if (.compositionspanels | type) == "array" then
-          [.compositionspanels[][]?]
-        elif (.compositionspanels | type) == "object" then
-          [.compositionspanels[]?]
-        else
-          []
-        end) as $items
+        (.compositionspanels // []) as $items
         | ($items | sort_by(.metadata.creationTimestamp // "") | reverse) as $sorted
         | (.slice.offset  // 0)                 as $offset
         | (.slice.perPage // ($sorted | length)) as $perPage
